@@ -15,7 +15,7 @@ This repository is organized by hardware environment and tooling focus.
     * *Focus:* Multi-GPU setups, custom Ollama interactions, and CUDA-specific implementations.
 
 ### 📂 Tooling & Workflows
-* **/cli-workflows**
+* **/CLI_Tools**
     * *Tools:* `opencode`, `gemini-cli`, `claude`.
     * *Content:* System prompts, context files, and conversation logs/templates.
 * **/infrastructure**
