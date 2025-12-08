@@ -28,15 +28,15 @@ do
             fi
             # -----------------------------
 
-            # Check if we already processed this folder (to avoid overwriting)
-            if [ ! -f "$INNER_DIR/gemini.md" ]; then
+            # Check if we already processed this folder (to avoid overwriting) (or agents.md or other md file depending on your cli tool of choice)
+            if [ ! -f "$INNER_DIR/gemini.md" ]; then 
 
                 # Copy requirements.md
                 if [ -f "$SOURCE_REQ" ]; then
                     cp "$SOURCE_REQ" "$INNER_DIR/requirements.md"
                 fi
 
-                # Create gemini.md
+                # Create gemini.md (or agents.md or other md file depending on your cli tool of choice)
                 echo "$PROMPT_TEXT" > "$INNER_DIR/gemini.md"
 
                 # Log to journal (viewable with journalctl)
