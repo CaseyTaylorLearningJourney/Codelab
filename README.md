@@ -35,8 +35,8 @@ This repository is organized by hardware environment and tooling focus.
 * **OS:** Ubuntu 24.04.3 LTS (VM)
 * **Network:** Segmented VLAN (Isolated: No access to other local networks).
 * **Compute:**
-    * CPU: Intel Xeon E5-2697 v4 (2 Sockets, 2 Cores assigned)
-    * RAM: 24GB Dedicated
+    * CPU: Intel Xeon E5-2697 v4 (2 Sockets, 5 Cores assigned)
+    * RAM: 32GB Dedicated
 * **Accelerators:**
     * GPU: 2x NVIDIA RTX A4000 (Passthrough)
     * VRAM: 32GB Total (16GB x2)
