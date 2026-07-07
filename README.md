@@ -10,7 +10,7 @@ This repository is organized by hardware environments, tooling frameworks, and s
 
 ### 📂 Environments & Clusters
 *   **[Cluster](./Cluster)**: Centralized configuration hub and orchestration scripts for the distributed AI cluster nodes.
-*   **[AI_Max](./AI_Max)**: Host configurations, boot parameters, and custom AMD GPU/UMA allocations for the Ryzen AI Max+ 395 main node (Aifut).
+*   **[AI_Max](./AI_Max)**: Host configurations, boot parameters, and custom AMD GPU/UMA allocations for the Ryzen AI Max+ 395 main node (Aifut) — see the detailed [AMD UMA Memory Unlock Guide](./AI_Max/amd_uma_memory_unlock_guide.md).
 *   **[Minisforum](./Minisforum)**: Vulkan RPC worker daemon setup and configurations for the Minisforum MS-R1.
 *   **[Intel](./Intel)**: Deployment runtimes and Optimum-Intel / OpenVINO inference setups.
 *   **[Mac](./Mac)**: MLX/Ollama modelfiles and launch configurations for Apple Silicon workstations.
@@ -39,44 +39,44 @@ The diagram below illustrates the physical nodes, virtualized backends, local wo
     'secondaryColor': '#3b4252',
     'tertiaryColor': '#242933',
     'edgeLabelBackground': '#2e3440',
-    'fontSize': '12px'
+    'fontSize': '12px',
+    'fontFamily': 'system-ui, -apple-system, sans-serif'
   }
 }}%%
 flowchart TD
-    %% Remote Access / External
-    Cloudflared[["🔒 <b>Cloudflared</b><br><small>Cloudflare Tunnel (Secure Zero Trust)</small>"]]
-    OpenRouter{{"☁️ <b>OpenRouter (External)</b><br><small>API: https://openrouter.ai/api/v1</small>"}}
-
     subgraph ClientSpace["💻 Local Workstations (LAN)"]
-        ZBook(["💻 <b>HP ZBook G9 (Intel OpenVINO)</b><br><small>i7-1260P | Iris Xe | 64GB RAM</small>"])
-        MacBook(["🍎 <b>MacBook Pro M1 Max (MLX)</b><br><small>64GB Unified Memory</small>"])
+        ZBook("💻 <b>HP ZBook G9 (Intel OpenVINO)</b><br><small>i7-1260P | Iris Xe | 64GB RAM</small>")
+        MacBook("🍎 <b>MacBook Pro M1 Max (MLX)</b><br><small>64GB Unified Memory</small>")
     end
 
     subgraph Proxmox["🖥️ Proxmox VM Stack (IP: 10.200.200.20)"]
+        Cloudflared("🔒 <b>Cloudflared</b><br><small>Cloudflare Tunnel (Secure Zero Trust)</small>")
         OpenWebUI("🌐 <b>Open WebUI (Frontend)</b><br><small>Port 3000</small>")
         SillyTavern("🎭 <b>SillyTavern</b><br><small>Port 8000</small>")
     end
 
     subgraph Cluster["⚡ AI_Max Heterogeneous Cluster (Target: ~216GB Unified Pool)"]
-        Aifut[("🚀 <b>Aifut Mini PC (Strix Halo)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>")]
-        Minisforum("🤖 <b>Minisforum MS-r1 (ARM64)</b><br><small>64GB RAM | Debian 12<br>Vulkan RPC Worker (Port 50052)</small>")
-        MacMini("🍏 <b>Mac Mini M4</b><br><small>24GB RAM | macOS<br>Metal RPC Worker (Port 50052)</small>")
+        Aifut("🚀 <b>Aifut Mini PC (Strix Halo)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>")
+        Minisforum("🤖 <b>Minisforum MS-r1 (ARM64)</b><br><small>64GB RAM | Debian 12 | Vulkan RPC (Port 50052)</small>")
+        MacMini("🍏 <b>Mac Mini M4</b><br><small>24GB RAM | macOS | Metal RPC (Port 50052)</small>")
     end
 
+    OpenRouter("☁️ <b>OpenRouter (External)</b><br><small>API: https://openrouter.ai/api/v1</small>")
+
     %% Connections & Flows
-    Cloudflared -->|"Secure Zero Trust Tunnel"| OpenWebUI
-    Cloudflared -->|"Secure Zero Trust Tunnel"| SillyTavern
+    Cloudflared -->|Tunnel| OpenWebUI
+    Cloudflared -->|Tunnel| SillyTavern
 
-    ZBook -->|"Access Portal"| OpenWebUI
-    MacBook -->|"Access Portal"| OpenWebUI
-    ZBook -.->|"Direct CLI/API"| Aifut
-    MacBook -.->|"Direct CLI/API"| Aifut
+    ZBook -->|LAN| OpenWebUI
+    MacBook -->|LAN| OpenWebUI
+    ZBook -.->|API| Aifut
+    MacBook -.->|API| Aifut
 
-    OpenWebUI -->|"LAN: http://10.200.200.50:8080/v1"| Aifut
-    OpenWebUI -->|"API: https://openrouter.ai/api/v1"| OpenRouter
+    OpenWebUI -->|Local API| Aifut
+    OpenWebUI -->|Cloud API| OpenRouter
 
-    Aifut <==>|"USB4 Thunderbolt Bridge (10.120.10.0/24)"| MacMini
-    Aifut <==>|"LAN (2.5G/10G Ethernet)"| Minisforum
+    Aifut <==>|USB4 Bridge| MacMini
+    Aifut <==>|LAN| Minisforum
 
     %% Color Styling Customization (Nord Theme Palette)
     style ClientSpace fill:#242933,stroke:#3b4252,stroke-width:1.5px,stroke-dasharray: 5 5,color:#eceff4
@@ -108,7 +108,7 @@ A 3-node distributed inference cluster designed around `llama.cpp` RPC workers, 
     *   **Aifut (Main Node)**: Ryzen AI Max (Strix Halo), 128GB RAM, running CachyOS.
         *   *GPU Backend*: ROCm/HIP (`-DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151`) for superior Strix Halo APU utilization.
         *   *BIOS*: VRAM/UMA Frame Buffer set to **Auto**; TDP set to **Performance** (54W+).
-        *   *Boot arguments*: `amdttm.pages_limit=0`, `amdttm.page_pool_size=0`, `amdgpu.gttsize=122880` (enabling a ~120GB GTT limit).
+        *   *Boot arguments*: `amdttm.pages_limit=0`, `amdttm.page_pool_size=0`, `amdgpu.gttsize=122880` (enabling a ~120GB GTT limit) — see the [AMD UMA Memory Unlock Guide](./AI_Max/amd_uma_memory_unlock_guide.md) to maximize VRAM allocation.
     *   **Minisforum MS-r1 (RPC Worker)**: ARM64 architecture, 64GB RAM, running Debian 12.
         *   *GPU Backend*: Vulkan acceleration over ARM Immortalis-G720. Runs `llama-worker.service` (`rpc-server` on `10.200.200.60:50052`).
     *   **Mac Mini M4 (RPC Worker)**: 24GB Unified Memory, running macOS.
