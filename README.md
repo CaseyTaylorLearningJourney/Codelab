@@ -29,25 +29,38 @@ This repository is organized by hardware environments, tooling frameworks, and s
 The diagram below illustrates the physical nodes, virtualized backends, local workstations, and their network connections. 
 
 ```mermaid
-flowchart TD
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#2e3440',
+    'primaryTextColor': '#eceff4',
+    'primaryBorderColor': '#4c566a',
+    'lineColor': '#81a1c1',
+    'secondaryColor': '#3b4252',
+    'tertiaryColor': '#242933',
+    'edgeLabelBackground': '#2e3440',
+    'fontSize': '12px'
+  }
+}}%%
+flowchart LR
     %% Remote Access / External
-    Cloudflared["🔒 <b>Cloudflared</b><br><small>Secure Zero Trust Tunnel</small>"]
-    OpenRouter["☁️ <b>OpenRouter</b><br><small>External API Gateway</small>"]
+    Cloudflared[["🔒 <b>Cloudflared</b><br><small>Secure Zero Trust Tunnel</small>"]]
+    OpenRouter{{"☁️ <b>OpenRouter</b><br><small>External API Gateway</small>"}}
 
     subgraph ClientSpace["💻 Local Workstations (LAN)"]
-        ZBook["💻 <b>HP ZBook G9</b><br><small>Intel OpenVINO | 64GB RAM</small>"]
-        MacBook["🍎 <b>MacBook Pro M1 Max</b><br><small>MLX Server | 64GB RAM</small>"]
+        ZBook(["💻 <b>HP ZBook G9</b><br><small>Intel OpenVINO | 64GB RAM</small>"])
+        MacBook(["🍎 <b>MacBook Pro M1 Max</b><br><small>MLX Server | 64GB RAM</small>"])
     end
 
     subgraph Proxmox["🖥️ Proxmox VM Stack (IP: 10.200.200.20)"]
-        OpenWebUI["🌐 <b>Open WebUI (Frontend)</b><br><small>Port 3000</small>"]
-        SillyTavern["🎭 <b>SillyTavern</b><br><small>Port 8000</small>"]
+        OpenWebUI("🌐 <b>Open WebUI (Frontend)</b><br><small>Port 3000</small>")
+        SillyTavern("🎭 <b>SillyTavern</b><br><small>Port 8000</small>")
     end
 
     subgraph Cluster["⚡ AI_Max Heterogeneous Cluster (Pool: ~216GB RAM)"]
-        Aifut["🚀 <b>Aifut Mini PC (Master)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>"]
-        Minisforum["🤖 <b>Minisforum MS-r1 (Worker)</b><br><small>64GB RAM | Vulkan RPC (Port 50052)</small>"]
-        MacMini["🍏 <b>Mac Mini M4 (Worker)</b><br><small>24GB RAM | Metal RPC (Port 50052)</small>"]
+        Aifut[("🚀 <b>Aifut Mini PC (Master)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>")]
+        Minisforum("🤖 <b>Minisforum MS-r1 (Worker)</b><br><small>64GB RAM | Vulkan RPC (Port 50052)</small>")
+        MacMini("🍏 <b>Mac Mini M4 (Worker)</b><br><small>24GB RAM | Metal RPC (Port 50052)</small>")
     end
 
     %% Connections & Flows
@@ -59,15 +72,15 @@ flowchart TD
     ZBook -.->|Direct CLI/API| Aifut
     MacBook -.->|Direct CLI/API| Aifut
 
-    OpenWebUI -->|Local API: http://10.200.200.50:8080/v1| Aifut
+    OpenWebUI -->|Local API| Aifut
     OpenWebUI -->|External API| OpenRouter
 
     Aifut <==>|"USB4 Thunderbolt Bridge (10.120.10.0/24)"| MacMini
     Aifut <==>|"LAN (2.5G/10G Ethernet)"| Minisforum
 
     %% Color Styling Customization (Nord Theme Palette)
-    style ClientSpace fill:#242933,stroke:#3b4252,stroke-dasharray: 5 5,color:#eceff4
-    style Proxmox fill:#242933,stroke:#3b4252,stroke-width:1px,color:#eceff4
+    style ClientSpace fill:#242933,stroke:#3b4252,stroke-width:1.5px,stroke-dasharray: 5 5,color:#eceff4
+    style Proxmox fill:#242933,stroke:#3b4252,stroke-width:1.5px,color:#eceff4
     style Cluster fill:#242933,stroke:#3b4252,stroke-width:1.5px,color:#eceff4
 
     style Cloudflared fill:#2e3440,stroke:#88c0d0,stroke-width:2px,color:#eceff4
