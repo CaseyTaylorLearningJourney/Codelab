@@ -8,13 +8,19 @@ Welcome to **Codelab**, the central hub for local AI tooling, automation configu
 
 This repository is organized by hardware environments, tooling frameworks, and scripting workflows:
 
+### 📂 Environments & Clusters
+*   **[Cluster](./Cluster)**: Centralized configuration hub and orchestration scripts for the distributed AI cluster nodes.
+*   **[AI_Max](./AI_Max)**: Host configurations, boot parameters, and custom AMD GPU/UMA allocations for the Ryzen AI Max+ 395 main node (Aifut).
+*   **[Minisforum](./Minisforum)**: Vulkan RPC worker daemon setup and configurations for the Minisforum MS-R1.
+*   **[Intel](./Intel)**: Deployment runtimes and Optimum-Intel / OpenVINO inference setups.
+*   **[Mac](./Mac)**: MLX/Ollama modelfiles and launch configurations for Apple Silicon workstations.
+*   **[Proxmox](./Proxmox)**: Hardened Docker compose stacks, virtualization-hosted microservices, and security profiles.
+
 ### 📂 Tooling & Workflows
 *   **[CLI_Tools](./CLI_Tools)**: Configurations, system prompts, templates, and conversation logs for terminal-based LLM clients.
     *   **Clients Supported**: `opencode`, `gemini-cli`, and `claude`.
 *   **[CLI_Tools/Automation/agent-config](./CLI_Tools/Automation/agent-config)**: Auto-injection setup for workspace rules.
     *   `inject-requirements.sh`: Watcher script (running as a systemd service) that automatically copies base configurations (`requirements.md` and `gemini.md`/`opencode.md`) into new project folders to guide AI models instantly.
-*   **`/infrastructure`**: Blueprint deployments and compose templates for self-hosted homelab server stacks (including rootless Docker configs, client configurations, and backup automation).
-*   **`/scripts`**: General-purpose developer scripts, utility programs, and helper tools (Python/Bash) decoupled from specific AI hardware constraints.
 
 ---
 
