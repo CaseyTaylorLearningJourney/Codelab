@@ -42,7 +42,7 @@ The diagram below illustrates the physical nodes, virtualized backends, local wo
     'fontSize': '12px'
   }
 }}%%
-flowchart LR
+flowchart TD
     %% Remote Access / External
     Cloudflared[["🔒 <b>Cloudflared</b><br><small>Cloudflare Tunnel (Secure Zero Trust)</small>"]]
     OpenRouter{{"☁️ <b>OpenRouter (External)</b><br><small>API: https://openrouter.ai/api/v1</small>"}}
@@ -57,7 +57,7 @@ flowchart LR
         SillyTavern("🎭 <b>SillyTavern</b><br><small>Port 8000</small>")
     end
 
-    subgraph Cluster["⚡ AI_Max Heterogeneous Cluster (Pool: ~216GB RAM)"]
+    subgraph Cluster["⚡ AI_Max Heterogeneous Cluster (Target: ~216GB Unified Pool)"]
         Aifut[("🚀 <b>Aifut Mini PC (Strix Halo)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>")]
         Minisforum("🤖 <b>Minisforum MS-r1 (ARM64)</b><br><small>64GB RAM | Debian 12<br>Vulkan RPC Worker (Port 50052)</small>")
         MacMini("🍏 <b>Mac Mini M4</b><br><small>24GB RAM | macOS<br>Metal RPC Worker (Port 50052)</small>")
