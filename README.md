@@ -29,32 +29,58 @@ This repository is organized by hardware environments, tooling frameworks, and s
 The diagram below illustrates the physical nodes, virtualized backends, local workstations, and their network connections. 
 
 ```mermaid
-graph TD
-    subgraph "Proxmox VM Stack (IP: 10.200.200.20)"
-        OpenWebUI["Open WebUI (Frontend)<br>Port 3000"]
-        SillyTavern["SillyTavern<br>Port 8000"]
-        Cloudflared["Cloudflared (Cloudflare Tunnel)"]
+flowchart TD
+    %% Remote Access / External
+    Cloudflared["🔒 <b>Cloudflared</b><br><small>Secure Zero Trust Tunnel</small>"]
+    OpenRouter["☁️ <b>OpenRouter</b><br><small>External API Gateway</small>"]
+
+    subgraph ClientSpace["💻 Local Workstations (LAN)"]
+        ZBook["💻 <b>HP ZBook G9</b><br><small>Intel OpenVINO | 64GB RAM</small>"]
+        MacBook["🍎 <b>MacBook Pro M1 Max</b><br><small>MLX Server | 64GB RAM</small>"]
     end
 
-    subgraph "Local Workstations (LAN)"
-        ZBook["HP ZBook G9 (Intel OpenVINO)<br>i7-1260P | Iris Xe | 64GB RAM"]
-        MacBook["MacBook Pro M1 Max (MLX)<br>64GB Unified Memory"]
+    subgraph Proxmox["🖥️ Proxmox VM Stack (IP: 10.200.200.20)"]
+        OpenWebUI["🌐 <b>Open WebUI (Frontend)</b><br><small>Port 3000</small>"]
+        SillyTavern["🎭 <b>SillyTavern</b><br><small>Port 8000</small>"]
     end
 
-    subgraph "AI_Max Heterogeneous Cluster (Target: ~216GB Unified Pool)"
-        Aifut["Aifut Mini PC (Strix Halo)<br>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)"]
-        Minisforum["Minisforum MS-r1 (ARM64)<br>64GB RAM | Debian 12<br>Vulkan RPC Worker (Port 50052)"]
-        MacMini["Mac Mini M4<br>24GB RAM | macOS<br>Metal RPC Worker (Port 50052)"]
+    subgraph Cluster["⚡ AI_Max Heterogeneous Cluster (Pool: ~216GB RAM)"]
+        Aifut["🚀 <b>Aifut Mini PC (Master)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>"]
+        Minisforum["🤖 <b>Minisforum MS-r1 (Worker)</b><br><small>64GB RAM | Vulkan RPC (Port 50052)</small>"]
+        MacMini["🍏 <b>Mac Mini M4 (Worker)</b><br><small>24GB RAM | Metal RPC (Port 50052)</small>"]
     end
 
-    %% Networking Links
-    OpenWebUI -->|"LAN: http://10.200.200.50:8080/v1"| Aifut
-    OpenWebUI -->|"API: https://openrouter.ai/api/v1"| OpenRouter["OpenRouter (External)"]
-    Aifut <-->|"USB4 Thunderbolt Bridge (10.120.10.0/24)"| MacMini
-    Aifut <-->|"LAN (2.5G/10G Ethernet)"| Minisforum
-    Cloudflared -->|"Secure Zero Trust Tunnel"| OpenWebUI
-    Cloudflared -->|"Secure Zero Trust Tunnel"| SillyTavern
+    %% Connections & Flows
+    Cloudflared -->|Route Tunnel| OpenWebUI
+    Cloudflared -->|Route Tunnel| SillyTavern
+
+    ZBook -->|Access Portal| OpenWebUI
+    MacBook -->|Access Portal| OpenWebUI
+    ZBook -.->|Direct CLI/API| Aifut
+    MacBook -.->|Direct CLI/API| Aifut
+
+    OpenWebUI -->|Local API: http://10.200.200.50:8080/v1| Aifut
+    OpenWebUI -->|External API| OpenRouter
+
+    Aifut <==>|USB4 Thunderbolt Bridge (10.120.10.0/24)| MacMini
+    Aifut <==>|LAN (2.5G/10G Ethernet)| Minisforum
+
+    %% Color Styling Customization (Nord Theme Palette)
+    style ClientSpace fill:#242933,stroke:#3b4252,stroke-dasharray: 5 5,color:#eceff4
+    style Proxmox fill:#242933,stroke:#3b4252,stroke-width:1px,color:#eceff4
+    style Cluster fill:#242933,stroke:#3b4252,stroke-width:1.5px,color:#eceff4
+
+    style Cloudflared fill:#2e3440,stroke:#88c0d0,stroke-width:2px,color:#eceff4
+    style ZBook fill:#2e3440,stroke:#81a1c1,stroke-width:1.5px,color:#eceff4
+    style MacBook fill:#2e3440,stroke:#81a1c1,stroke-width:1.5px,color:#eceff4
+    style OpenWebUI fill:#2e3440,stroke:#88c0d0,stroke-width:2px,color:#eceff4
+    style SillyTavern fill:#2e3440,stroke:#88c0d0,stroke-width:1.5px,color:#eceff4
+    style Aifut fill:#2e3440,stroke:#a3be8c,stroke-width:2.5px,color:#eceff4
+    style Minisforum fill:#2e3440,stroke:#ebcb8b,stroke-width:1.5px,color:#eceff4
+    style MacMini fill:#2e3440,stroke:#ebcb8b,stroke-width:1.5px,color:#eceff4
+    style OpenRouter fill:#2e3440,stroke:#bf616a,stroke-width:1.5px,stroke-dasharray: 4 4,color:#eceff4
 ```
+
 
 ---
 
