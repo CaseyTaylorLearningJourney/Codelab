@@ -44,12 +44,12 @@ The diagram below illustrates the physical nodes, virtualized backends, local wo
 }}%%
 flowchart LR
     %% Remote Access / External
-    Cloudflared[["🔒 <b>Cloudflared</b><br><small>Secure Zero Trust Tunnel</small>"]]
-    OpenRouter{{"☁️ <b>OpenRouter</b><br><small>External API Gateway</small>"}}
+    Cloudflared[["🔒 <b>Cloudflared</b><br><small>Cloudflare Tunnel (Secure Zero Trust)</small>"]]
+    OpenRouter{{"☁️ <b>OpenRouter (External)</b><br><small>API: https://openrouter.ai/api/v1</small>"}}
 
     subgraph ClientSpace["💻 Local Workstations (LAN)"]
-        ZBook(["💻 <b>HP ZBook G9</b><br><small>Intel OpenVINO | 64GB RAM</small>"])
-        MacBook(["🍎 <b>MacBook Pro M1 Max</b><br><small>MLX Server | 64GB RAM</small>"])
+        ZBook(["💻 <b>HP ZBook G9 (Intel OpenVINO)</b><br><small>i7-1260P | Iris Xe | 64GB RAM</small>"])
+        MacBook(["🍎 <b>MacBook Pro M1 Max (MLX)</b><br><small>64GB Unified Memory</small>"])
     end
 
     subgraph Proxmox["🖥️ Proxmox VM Stack (IP: 10.200.200.20)"]
@@ -58,22 +58,22 @@ flowchart LR
     end
 
     subgraph Cluster["⚡ AI_Max Heterogeneous Cluster (Pool: ~216GB RAM)"]
-        Aifut[("🚀 <b>Aifut Mini PC (Master)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>")]
-        Minisforum("🤖 <b>Minisforum MS-r1 (Worker)</b><br><small>64GB RAM | Vulkan RPC (Port 50052)</small>")
-        MacMini("🍏 <b>Mac Mini M4 (Worker)</b><br><small>24GB RAM | Metal RPC (Port 50052)</small>")
+        Aifut[("🚀 <b>Aifut Mini PC (Strix Halo)</b><br><small>Ryzen AI Max | 128GB RAM | CachyOS<br>llama-swap Orchestrator (Port 8080)</small>")]
+        Minisforum("🤖 <b>Minisforum MS-r1 (ARM64)</b><br><small>64GB RAM | Debian 12<br>Vulkan RPC Worker (Port 50052)</small>")
+        MacMini("🍏 <b>Mac Mini M4</b><br><small>24GB RAM | macOS<br>Metal RPC Worker (Port 50052)</small>")
     end
 
     %% Connections & Flows
-    Cloudflared -->|Route Tunnel| OpenWebUI
-    Cloudflared -->|Route Tunnel| SillyTavern
+    Cloudflared -->|"Secure Zero Trust Tunnel"| OpenWebUI
+    Cloudflared -->|"Secure Zero Trust Tunnel"| SillyTavern
 
-    ZBook -->|Access Portal| OpenWebUI
-    MacBook -->|Access Portal| OpenWebUI
-    ZBook -.->|Direct CLI/API| Aifut
-    MacBook -.->|Direct CLI/API| Aifut
+    ZBook -->|"Access Portal"| OpenWebUI
+    MacBook -->|"Access Portal"| OpenWebUI
+    ZBook -.->|"Direct CLI/API"| Aifut
+    MacBook -.->|"Direct CLI/API"| Aifut
 
-    OpenWebUI -->|Local API| Aifut
-    OpenWebUI -->|External API| OpenRouter
+    OpenWebUI -->|"LAN: http://10.200.200.50:8080/v1"| Aifut
+    OpenWebUI -->|"API: https://openrouter.ai/api/v1"| OpenRouter
 
     Aifut <==>|"USB4 Thunderbolt Bridge (10.120.10.0/24)"| MacMini
     Aifut <==>|"LAN (2.5G/10G Ethernet)"| Minisforum
