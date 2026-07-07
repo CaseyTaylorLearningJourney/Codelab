@@ -62,8 +62,8 @@ flowchart TD
     OpenWebUI -->|Local API: http://10.200.200.50:8080/v1| Aifut
     OpenWebUI -->|External API| OpenRouter
 
-    Aifut <==>|USB4 Thunderbolt Bridge (10.120.10.0/24)| MacMini
-    Aifut <==>|LAN (2.5G/10G Ethernet)| Minisforum
+    Aifut <==>|"USB4 Thunderbolt Bridge (10.120.10.0/24)"| MacMini
+    Aifut <==>|"LAN (2.5G/10G Ethernet)"| Minisforum
 
     %% Color Styling Customization (Nord Theme Palette)
     style ClientSpace fill:#242933,stroke:#3b4252,stroke-dasharray: 5 5,color:#eceff4

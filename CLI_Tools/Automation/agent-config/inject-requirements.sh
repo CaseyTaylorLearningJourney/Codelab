@@ -18,6 +18,11 @@ do
         # 3. Find this directory and any sub-directories created inside it
         find "$NEW_ITEM" -type d | while read INNER_DIR
         do
+            # Skip any directories inside a .git folder
+            if [[ "$INNER_DIR" == *"/.git"* ]]; then
+                continue
+            fi
+
             # We look inside the folder. if we find *any* other directory (mindepth 1),
             # then this is a "parent" folder, not the "last" directory.
             HAS_SUBDIRS=$(find "$INNER_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1)
