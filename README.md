@@ -71,9 +71,13 @@ A 3-node distributed inference cluster designed around `llama.cpp` RPC workers, 
 *   **High-Speed Interconnect**:
     *   Aifut connects to the Mac Mini via a direct **USB4/Thunderbolt Network Bridge** (`10.120.10.12` / `10.120.10.11`) with MTU 9000 and TSO optimizations enabled to handle high-bandwidth RPC layer sharding.
     *   Standard LAN connections (2.5GbE/10GbE) link Aifut and the Minisforum node.
-*   **Storage Layout (Aifut Two-Tier)**:
-    *   `/mnt/Data` (1 TB Internal NVMe): High-speed model landing zone and primary storage.
-    *   `/mnt/Models` (4 TB External USB SSD): Overflow volume mounted via `setup_external_ssd.sh` (utilizes UUID and `nofail,x-systemd.device-timeout=10` in `/etc/fstab` for safe hot-unplugging).
+*   **Storage Layout (AIfut Tiered Storage with SnapRAID)**:
+    *   **Primary Landing Zone**: `/mnt/Data` (1 TB Internal NVMe) for high-speed model execution. (Soon to be upgraded to 4TB NVMe)
+    *   **Expansion Enclosure**: ORICO 9858T3 5-bay USB4 / Thunderbolt 3 enclosure (authorized via `boltctl`, UUID: `c1010000-0072-740e-0392-1fe1d4b23009`), pooled using `mergerfs` under `/mnt/OricoPool` (~16 TB total storage).
+        *   *Fast SSD Tier (~8 TB)*: 2 × 4TB ext4 SSDs (`/mnt/orico/ssd1` & `/mnt/orico/ssd2` in Bays 1 and 2). mergerfs is configured with `category.create=ff` to write to the SSD tier first.
+        *   *Bulk HDD Tier (~8 TB)*: 2 × 4TB ext4 HDDs (`/mnt/orico/hdd1` & `/mnt/orico/hdd2` in Bays 3 and 4) for overflow model archiving.
+        *   *SnapRAID Parity*: 1 × 4TB HDD (`/mnt/orico/parity` in Bay 5) protecting the pool against single drive failures. Content files are mirrored on `/mnt/orico/ssd1/.snapraid.content` and `/mnt/orico/hdd1/.snapraid.content`.
+        *   *Automation & Robustness*: Nightly SnapRAID parity sync and scrub at 3:00 AM via systemd timers (`snapraid-sync.timer`). All drives are configured in `/etc/fstab` using UUIDs and `nofail,noatime,x-systemd.device-timeout=10` to guarantee clean boots even when disconnected.
 *   **Model Strategy**:
     *   Models are stored exclusively on Aifut; `llama-server` shards layers dynamically to the RPC workers over the high-speed links.
     *   *Base Models*: MiniMax M2.5 (UD-Q4_K_XL), Step 3.5 Flash (Q4_K_M), Llama 3.1 405B (Q2_K & Q3_K_M), Qwen 3.5 122B (Q6_K / UD-Q6_K_XL).
