@@ -42,12 +42,12 @@ graph TD
     end
 
     %% Networking Links
-    OpenWebUI -->|LAN: http://10.200.200.50:8080/v1| Aifut
-    OpenWebUI -->|API: https://openrouter.ai/api/v1| OpenRouter["OpenRouter (External)"]
-    Aifut <-->|USB4 Thunderbolt Bridge (10.120.10.0/24)| MacMini
-    Aifut <-->|LAN (2.5G/10G Ethernet)| Minisforum
-    Cloudflared -->|Secure Zero Trust Tunnel| OpenWebUI
-    Cloudflared -->|Secure Zero Trust Tunnel| SillyTavern
+    OpenWebUI -->|"LAN: http://10.200.200.50:8080/v1"| Aifut
+    OpenWebUI -->|"API: https://openrouter.ai/api/v1"| OpenRouter["OpenRouter (External)"]
+    Aifut <-->|"USB4 Thunderbolt Bridge (10.120.10.0/24)"| MacMini
+    Aifut <-->|"LAN (2.5G/10G Ethernet)"| Minisforum
+    Cloudflared -->|"Secure Zero Trust Tunnel"| OpenWebUI
+    Cloudflared -->|"Secure Zero Trust Tunnel"| SillyTavern
 ```
 
 ---
